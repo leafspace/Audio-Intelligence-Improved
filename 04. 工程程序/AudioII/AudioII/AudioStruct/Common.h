@@ -2,30 +2,32 @@
 #include <stdio.h>
 #include <fstream>
 #include <stdint.h>
+#include <iostream>
 using namespace std;
 
 enum Type
 {
-    i8Bit = 1,
-    i16Bit,
-    i32Bit,
+	i8Bit = 1,                                                              // 8bit数据
+	i16Bit,                                                                 // 16bit数据
+	i24Bit,                                                                 // 不存在
+	i32Bit,                                                                 // 32bit数据
 };
 
 class DataType
 {
 private:
-    static short sizeFlag;
-    int8_t *data8B = NULL;
-    int16_t *data16B = NULL;
-    int32_t *data32B = NULL;
-    inline static void clearBuffer(void* pointer);
+	static short sizeFlag;                                                  // 标志：说明本类中的数据是什么类型的
+	int8_t *data8B = NULL;                                                  // 8bit数据
+	int16_t *data16B = NULL;                                                // 16bit数据
+	int32_t *data32B = NULL;                                                // 32bit数据
+	inline static void clearBuffer(void* pointer);                          // 提供与本类清理数据用
 public:
-    DataType();
-    DataType(const int data);
-    ~DataType();
-    operator int() const;
-    int operator=(const int &dataType) const;
-    static void setSizeFlag(const short sizeFlag);
+	DataType();
+	DataType(const int data);
+	~DataType();
+	operator int() const;                                                   // 用于返回本类数据 例如：int result = (int) dataType;
+	int operator=(const int &dataType) const;                               // 用于支持赋值作用 例如：DataType dataType = (int) result;
+	static void setSizeFlag(const short sizeFlag);                          // 用于设置本类的数据类型
 };
 
 short DataType::sizeFlag = i8Bit;

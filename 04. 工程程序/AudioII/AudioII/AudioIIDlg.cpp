@@ -63,6 +63,11 @@ BEGIN_MESSAGE_MAP(CAudioIIDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(IDC_BUTTON1, &CAudioIIDlg::OnBnClickedButton1)
+	ON_BN_CLICKED(IDC_BUTTON2, &CAudioIIDlg::OnBnClickedButton2)
+	ON_BN_CLICKED(IDC_BUTTON3, &CAudioIIDlg::OnBnClickedButton3)
+	ON_BN_CLICKED(IDC_BUTTON4, &CAudioIIDlg::OnBnClickedButton4)
+	ON_BN_CLICKED(IDC_BUTTON5, &CAudioIIDlg::OnBnClickedButton5)
 END_MESSAGE_MAP()
 
 
@@ -151,3 +156,33 @@ HCURSOR CAudioIIDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+
+void CAudioIIDlg::OnBnClickedButton1()
+{
+	// TODO: Add your control notification handler code here
+}
+
+
+void CAudioIIDlg::OnBnClickedButton2()
+{
+	// TODO: Add your control notification handler code here
+}
+
+
+void CAudioIIDlg::OnBnClickedButton3()
+{
+	// TODO: Add your control notification handler code here
+}
+
+
+void CAudioIIDlg::OnBnClickedButton4()
+{
+	// TODO: Add your control notification handler code here
+}
+
+
+void CAudioIIDlg::OnBnClickedButton5()
+{
+	// TODO: Add your control notification handler code here
+}
