@@ -1,4 +1,3 @@
-
 // AudioIIDlg.cpp : 实现文件
 //
 
@@ -19,10 +18,10 @@ class CAboutDlg : public CDialogEx
 public:
 	CAboutDlg();
 
-// 对话框数据
+	// 对话框数据
 	enum { IDD = IDD_ABOUTBOX };
 
-	protected:
+protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
 
 // 实现
@@ -42,6 +41,64 @@ void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
 END_MESSAGE_MAP()
 
+// 应用于保存文件后的提示对话框
+class CSaveFileDlg : public CDialogEx
+{
+public:
+	CSaveFileDlg();
+	CString filePath;
+	// 对话框数据
+	enum { IDD = IDD_SAVEFILE };
+
+protected:
+	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
+
+														// 实现
+protected:
+	DECLARE_MESSAGE_MAP()
+public:
+	afx_msg void OnBnClickedOk();
+};
+
+CSaveFileDlg::CSaveFileDlg() : CDialogEx(CSaveFileDlg::IDD)
+{
+}
+
+void CSaveFileDlg::DoDataExchange(CDataExchange* pDX)
+{
+	CDialogEx::DoDataExchange(pDX);
+	SetDlgItemText(IDC_EDIT1, this->filePath);
+}
+
+BEGIN_MESSAGE_MAP(CSaveFileDlg, CDialogEx)
+	ON_BN_CLICKED(IDOK, &CSaveFileDlg::OnBnClickedOk)
+END_MESSAGE_MAP()
+
+void CSaveFileDlg::OnBnClickedOk()
+{
+	int nameLen = WideCharToMultiByte(CP_ACP, 0, this->filePath, -1, NULL, 0, NULL, NULL);
+	char *filePathChar = new char[nameLen + 1];
+	WideCharToMultiByte(CP_ACP, 0, this->filePath, -1, filePathChar, nameLen, NULL, NULL);                //将CString转为char*
+	char *filePathTemp = new char[nameLen + 20];
+	int index = 0;                                                          // 用于保存新文件名长度
+	for (int i = 0; i < nameLen + 1; ++i) {                                 // 处理'\'为'\\'，若文件中的路径分隔符为'\'则无法准确定位
+		filePathTemp[index++] = filePathChar[i];
+		if (filePathChar[i] == '\\') {
+			filePathTemp[index++] = '\\';
+		}
+	}
+	filePathTemp[index] = 0;
+	while (index >= 0) {
+		if (filePathTemp[index] == '\\') {
+			break;
+		}
+		index--;
+	}
+	filePathTemp[index + 1] = 0;
+	CString cString(filePathTemp);
+	ShellExecute(m_hWnd, _T("open"), cString, NULL, NULL, SW_SHOWNORMAL);   // 打开文件夹路径
+	CDialogEx::OnOK();
+}
 
 // CAudioIIDlg 对话框
 
@@ -160,7 +217,14 @@ HCURSOR CAudioIIDlg::OnQueryDragIcon()
 
 void CAudioIIDlg::OnBnClickedButton1()
 {
-	// TODO: Add your control notification handler code here
+	TCHAR szFilter[] = _T("语音文件(*.wav)|*.wav|所有文件(*.*)|*.*||");
+	CFileDialog fileDlg(TRUE, _T("wav"), NULL, 0, szFilter, this);
+
+	if (IDOK == fileDlg.DoModal()) {
+		CString strFilePath = fileDlg.GetPathName();
+		SetDlgItemText(IDC_EDIT1, strFilePath);
+	}
+	this->SendDlgItemMessage(IDC_EDIT1, WM_VSCROLL, SB_BOTTOM, 0);
 }
 
 
@@ -172,17 +236,74 @@ void CAudioIIDlg::OnBnClickedButton2()
 
 void CAudioIIDlg::OnBnClickedButton3()
 {
-	// TODO: Add your control notification handler code here
+	CSaveFileDlg dlgSave;
+	TCHAR szFilter[] = _T("语音文件(*.wav)|*.wav|所有文件(*.*)|*.*||");
+	CFileDialog fileDlg(FALSE, _T("wav"), _T("outwave"), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, szFilter, this);
+
+	if (IDOK == fileDlg.DoModal()) {
+		dlgSave.filePath = fileDlg.GetPathName();
+		SetDlgItemText(IDC_EDIT2, dlgSave.filePath);
+	}
+	this->SendDlgItemMessage(IDC_EDIT2, WM_VSCROLL, SB_BOTTOM, 0);
+
+	// Todo save file
+
+
+	dlgSave.DoModal();
 }
 
 
 void CAudioIIDlg::OnBnClickedButton4()
 {
-	// TODO: Add your control notification handler code here
+	FILE *fp = NULL;
+	char tempBuffer[BUFFERSIZE] = { 0 }, filePathP[BUFFERSIZE] = { 0 };
+	do {
+		CString filePath;
+		GetDlgItemTextW(IDC_EDIT2, filePath);
+		this->cstringToCharP(filePath, tempBuffer);
+		this->charPathToOut(tempBuffer, filePathP);
+		CString outPath(filePathP);
+		fp = fopen(filePathP, "rb");
+		if (fp == NULL) {
+			MessageBoxA(NULL, "Have no file !", "Error", MB_ICONSTOP | MB_YESNO);
+			break;
+		}
+		if (isPlaying) {
+			PlaySound(outPath, nullptr, SND_ASYNC | SND_FILENAME);
+			SetDlgItemText(IDC_BUTTON4, TEXT("Stop"));
+			isPlaying = FALSE;
+		}
+		else {
+			PlaySound(nullptr, nullptr, SND_ASYNC | SND_FILENAME);
+			SetDlgItemText(IDC_BUTTON4, TEXT("Play"));
+			isPlaying = TRUE;
+		}
+		fclose(fp);
+	} while (0);
+	memset(tempBuffer, 0, BUFFERSIZE);
+	memset(filePathP, 0, BUFFERSIZE);
 }
 
 
 void CAudioIIDlg::OnBnClickedButton5()
 {
 	// TODO: Add your control notification handler code here
+}
+
+void CAudioIIDlg::cstringToCharP(const CString cstring, char* outString)
+{
+	int nameLen = WideCharToMultiByte(CP_ACP, 0, cstring, -1, NULL, 0, NULL, NULL);
+	WideCharToMultiByte(CP_ACP, 0, cstring, -1, outString, nameLen, NULL, NULL);                       //将CString转为char*
+}
+
+void CAudioIIDlg::charPathToOut(const char* filePath, char* outString)
+{
+	int index = 0;                                                          // 用于保存新文件名长度
+	for (unsigned int i = 0; i < (unsigned int)strlen(filePath); ++i) {     // 处理'\'为'\\'，若文件中的路径分隔符为'\'则无法准确定位
+		outString[index++] = filePath[i];
+		if (filePath[i] == '\\') {
+			outString[index++] = '\\';
+		}
+	}
+	outString[index] = 0;
 }
