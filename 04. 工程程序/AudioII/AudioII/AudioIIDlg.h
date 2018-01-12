@@ -1,4 +1,4 @@
-// AudioIIDlg.h : 头文件
+﻿// AudioIIDlg.h : 头文件
 //
 
 #pragma once
@@ -40,10 +40,10 @@ public:
 	afx_msg void OnBnClickedButton5();
 
 private:
-	WAV *orginWAVFile = NULL;
-	bool isRecording = FALSE;
-	bool isPlaying = FALSE;
-	TCHAR fileFilter[BUFFERSIZE] = _T("语音文件(*.wav)|*.wav|所有文件(*.*)|*.*||");
+	WAV *orginWAVFile;
+	bool isRecording;
+	bool isPlaying;
+	CString fileFilter;
 	CString orginWAVFilePath;
 	CString outWAVFilePath;
 	void cstringToCharP(const CString cstring, char* outString);

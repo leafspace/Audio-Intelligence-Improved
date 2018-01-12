@@ -1,4 +1,4 @@
-// AudioIIDlg.cpp : 实现文件
+﻿// AudioIIDlg.cpp : 实现文件
 //
 
 #include "stdafx.h"
@@ -160,7 +160,10 @@ BOOL CAudioIIDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 	// TODO: 在此添加额外的初始化代码
-
+	this->orginWAVFile = NULL;
+	this->isRecording = FALSE;
+	this->isPlaying = FALSE;
+	this->fileFilter.Format(_T("语音文件(*.wav)|*.wav|所有文件(*.*)|*.*||"));
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 

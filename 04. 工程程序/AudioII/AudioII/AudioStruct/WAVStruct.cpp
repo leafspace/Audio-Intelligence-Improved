@@ -1,13 +1,50 @@
-#include "../stdafx.h"
+﻿#include "../stdafx.h"
 #include "WAVStruct.h"
+
+WaveChunk::WaveChunk()
+{
+	memset(this->RIFF, 0, 4);
+	this->fileLength = 0;
+	memset(this->WAVE, 0, 4);
+}
+
+FormatChunk::FormatChunk()
+{
+	memset(this->FMT, 0, 4);
+	this->fChunkLength = 0;
+	this->formatCategory = 0;
+	this->channelNumber = 0;
+	this->sampleFrequency = 0;
+	this->transferRate = 0;
+	this->sampleBytes = 0;
+	this->sampleBits = 0;
+
+	this->extraInfo = 0;
+}
+
+FactChunk::FactChunk()
+{
+	memset(this->FACT, 0, 4);
+	this->eChunkLength = 0;
+	this->eChunk = 0;
+}
+
+DataChunk::DataChunk()
+{
+	memset(this->DATA, 0, 4);
+	this->dataLength = 0;
+	this->dataList = NULL;
+}
 
 WAV::WAV()
 {
-
+	this->isWAV = true;
+	this->factChunk = NULL;
 }
 
 WAV::WAV(FILE *fp)
 {
+	WAV();
 	fread(this->waveChunk.RIFF, sizeof(char), 4, fp);                       // 读取'RIFF'
 	fread(&this->waveChunk.fileLength, sizeof(unsigned int), 1, fp);        // 读取文件的大小
 	fread(this->waveChunk.WAVE, sizeof(char), 4, fp);                       // 读取'WAVE'
@@ -49,6 +86,7 @@ WAV::WAV(FILE *fp)
 
 WAV::WAV(ifstream fin)
 {
+	WAV();
 	fin.read(this->waveChunk.RIFF, sizeof(char) * 4);
 	fin.read(this->waveChunk.RIFF, sizeof(char) * 4);                       // 读取'RIFF'
 	fin.read(reinterpret_cast<char*>(this->waveChunk.fileLength), sizeof(unsigned int) * 1);              // 读取文件的大小

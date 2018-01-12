@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <stdio.h>
 #include <fstream>
 #include <stdint.h>
@@ -17,9 +17,9 @@ class DataType
 {
 private:
 	static short sizeFlag;                                                  // 标志：说明本类中的数据是什么类型的
-	int8_t *data8B = NULL;                                                  // 8bit数据
-	int16_t *data16B = NULL;                                                // 16bit数据
-	int32_t *data32B = NULL;                                                // 32bit数据
+	int8_t *data8B;                                                         // 8bit数据
+	int16_t *data16B;                                                       // 16bit数据
+	int32_t *data32B;                                                       // 32bit数据
 	inline static void clearBuffer(void* pointer);                          // 提供与本类清理数据用
 public:
 	DataType();

@@ -1,10 +1,13 @@
-#include "../stdafx.h"
+﻿#include "../stdafx.h"
 #include "Common.h"
 
 short DataType::sizeFlag = i8Bit;
 
 DataType::DataType()
 {
+	this->data8B = NULL;
+	this->data16B = NULL;
+	this->data32B = NULL;
 	switch (DataType::sizeFlag)
 	{
 	case i8Bit: this->data8B = new int8_t(); break;
@@ -14,8 +17,9 @@ DataType::DataType()
 	}
 }
 
-DataType::DataType(const int data) : DataType()
+DataType::DataType(const int data)
 {
+	DataType();
 	switch (DataType::sizeFlag)
 	{
 	case i8Bit: (*this->data8B) = data; break;
