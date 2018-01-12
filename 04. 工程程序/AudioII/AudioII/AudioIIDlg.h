@@ -3,7 +3,9 @@
 
 #pragma once
 #define BUFFERSIZE 256
+#include <windows.h>
 #include <mmsystem.h>
+#include "AudioStruct\WAVStruct.h"
 #pragma comment(lib, "WINMM.LIB")
 
 // CAudioIIDlg 对话框
@@ -38,8 +40,17 @@ public:
 	afx_msg void OnBnClickedButton5();
 
 private:
+	WAV *orginWAVFile = NULL;
+	bool isRecording = FALSE;
 	bool isPlaying = FALSE;
-
+	TCHAR fileFilter[BUFFERSIZE] = _T("语音文件(*.wav)|*.wav|所有文件(*.*)|*.*||");
+	CString orginWAVFilePath;
+	CString outWAVFilePath;
 	void cstringToCharP(const CString cstring, char* outString);
 	void charPathToOut(const char* filePath, char* outString);
+
+	void loadFile();
+	void showFile(WAV *waveFile);
+
+	void StartDraw(WAV *waveFile);
 };

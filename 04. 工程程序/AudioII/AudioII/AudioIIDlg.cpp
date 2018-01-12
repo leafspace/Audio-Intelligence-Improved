@@ -217,39 +217,83 @@ HCURSOR CAudioIIDlg::OnQueryDragIcon()
 
 void CAudioIIDlg::OnBnClickedButton1()
 {
-	TCHAR szFilter[] = _T("语音文件(*.wav)|*.wav|所有文件(*.*)|*.*||");
-	CFileDialog fileDlg(TRUE, _T("wav"), NULL, 0, szFilter, this);
-
-	if (IDOK == fileDlg.DoModal()) {
-		CString strFilePath = fileDlg.GetPathName();
-		SetDlgItemText(IDC_EDIT1, strFilePath);
+	CFileDialog fileDlg(TRUE, _T("wav"), NULL, 0, this->fileFilter, this);  // 创建弹窗对象
+	int chooseID = fileDlg.DoModal();                                       // 开始弹窗
+	if (chooseID == IDOK) {                                                 // 用户选择了文件
+		this->orginWAVFilePath = fileDlg.GetPathName();
+		SetDlgItemText(IDC_EDIT1, this->orginWAVFilePath);
 	}
-	this->SendDlgItemMessage(IDC_EDIT1, WM_VSCROLL, SB_BOTTOM, 0);
+	else if (chooseID == IDCANCEL) {                                        // 用户选择了取消
+		this->orginWAVFilePath = "";
+		SetDlgItemText(IDC_EDIT1, this->orginWAVFilePath);
+		MessageBoxA(NULL, "Choose no file !", "Warning", MB_ICONWARNING | MB_OK);
+	}
+	this->SendDlgItemMessage(IDC_EDIT1, WM_VSCROLL, SB_BOTTOM, 0);          // 定位编辑框到最底端
 }
 
 
 void CAudioIIDlg::OnBnClickedButton2()
 {
-	// TODO: Add your control notification handler code here
+	// TODO: 编辑录音到本地
+	if (isRecording) {
+		// Todo 录音结束
+		this->isRecording = FALSE;
+		SetDlgItemText(IDC_BUTTON2, _T("Record"));
+		// Todo 保存文件
+
+
+	}
+	else {
+		CFileDialog fileDlg(FALSE, _T("wav"), _T("outwave"), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, this->fileFilter, this);
+		int chooseID = fileDlg.DoModal();                                       // 开始弹窗
+		if (chooseID == IDOK) {
+			this->orginWAVFilePath = fileDlg.GetPathName();
+			SetDlgItemText(IDC_EDIT1, this->orginWAVFilePath);
+			// Todo 开始录音
+			this->isRecording = TRUE;
+			SetDlgItemText(IDC_BUTTON2, _T("Stop"));
+			// Todo 调用库接口开始录音
+
+
+		}
+		else if (chooseID == IDCANCEL) {
+			chooseID = MessageBoxA(NULL, "Choose no file !", "Warning", MB_ICONSTOP | MB_RETRYCANCEL);
+			if (chooseID == IDRETRY) {
+				this->OnBnClickedButton2();
+			}
+			else if (chooseID == IDCANCEL) {
+				this->orginWAVFilePath = "";
+				SetDlgItemText(IDC_EDIT1, this->orginWAVFilePath);
+			}
+		}
+	}
 }
 
 
 void CAudioIIDlg::OnBnClickedButton3()
 {
-	CSaveFileDlg dlgSave;
-	TCHAR szFilter[] = _T("语音文件(*.wav)|*.wav|所有文件(*.*)|*.*||");
-	CFileDialog fileDlg(FALSE, _T("wav"), _T("outwave"), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, szFilter, this);
+	CSaveFileDlg saveDlg;
+	CFileDialog fileDlg(FALSE, _T("wav"), _T("outwave"), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, this->fileFilter, this);
+	do {
+		int chooseID = fileDlg.DoModal();
+		if (chooseID == IDOK) {
+			saveDlg.filePath = fileDlg.GetPathName();
+			this->outWAVFilePath = fileDlg.GetPathName();
+			SetDlgItemText(IDC_EDIT2, this->outWAVFilePath);
+			this->SendDlgItemMessage(IDC_EDIT2, WM_VSCROLL, SB_BOTTOM, 0);
+		}
+		else if (chooseID == IDCANCEL) {
+			chooseID = MessageBoxA(NULL, "Choose no file !", "Warning", MB_ICONSTOP | MB_OK);
+			saveDlg.filePath = "";
+			this->outWAVFilePath = "";
+			SetDlgItemText(IDC_EDIT2, this->outWAVFilePath);
+			break;
+		}
 
-	if (IDOK == fileDlg.DoModal()) {
-		dlgSave.filePath = fileDlg.GetPathName();
-		SetDlgItemText(IDC_EDIT2, dlgSave.filePath);
-	}
-	this->SendDlgItemMessage(IDC_EDIT2, WM_VSCROLL, SB_BOTTOM, 0);
+		// Todo 将处理后的数据保存到文件当中
 
-	// Todo save file
-
-
-	dlgSave.DoModal();
+		saveDlg.DoModal();
+	} while (0);
 }
 
 
@@ -268,15 +312,16 @@ void CAudioIIDlg::OnBnClickedButton4()
 			MessageBoxA(NULL, "Have no file !", "Error", MB_ICONSTOP | MB_YESNO);
 			break;
 		}
+		// Todo create a thread to play sound
 		if (isPlaying) {
 			PlaySound(outPath, nullptr, SND_ASYNC | SND_FILENAME);
-			SetDlgItemText(IDC_BUTTON4, TEXT("Stop"));
 			isPlaying = FALSE;
+			SetDlgItemText(IDC_BUTTON4, TEXT("Stop"));
 		}
 		else {
 			PlaySound(nullptr, nullptr, SND_ASYNC | SND_FILENAME);
-			SetDlgItemText(IDC_BUTTON4, TEXT("Play"));
 			isPlaying = TRUE;
+			SetDlgItemText(IDC_BUTTON4, TEXT("Play"));
 		}
 		fclose(fp);
 	} while (0);
@@ -287,7 +332,9 @@ void CAudioIIDlg::OnBnClickedButton4()
 
 void CAudioIIDlg::OnBnClickedButton5()
 {
-	// TODO: Add your control notification handler code here
+	// 将语音文件数据处理
+	this->loadFile();
+
 }
 
 void CAudioIIDlg::cstringToCharP(const CString cstring, char* outString)
@@ -306,4 +353,86 @@ void CAudioIIDlg::charPathToOut(const char* filePath, char* outString)
 		}
 	}
 	outString[index] = 0;
+}
+
+void CAudioIIDlg::loadFile()
+{
+	char tempBuffer[BUFFERSIZE] = { 0 }, filePathP[BUFFERSIZE] = { 0 };
+	this->cstringToCharP(this->orginWAVFilePath, tempBuffer);
+	this->charPathToOut(tempBuffer, filePathP);
+	FILE *fp = NULL;
+	if ((fp = fopen(filePathP, "rb")) == NULL) {
+		MessageBoxA(NULL, "File is missing !", "Error", MB_ICONSTOP | MB_OK);
+		return;
+	}
+	if (this->orginWAVFile != NULL) {
+		delete this->orginWAVFile;
+		this->orginWAVFile = NULL;
+	}
+	this->orginWAVFile = new WAV(fp);
+
+	this->showFile(this->orginWAVFile);
+}
+
+void CAudioIIDlg::showFile(WAV *waveFile)
+{
+	if (waveFile == NULL) {
+		MessageBoxA(NULL, "No file data !", "Error", MB_ICONSTOP | MB_OK);
+		return;
+	}
+
+	this->StartDraw(waveFile);
+}
+
+void CAudioIIDlg::StartDraw(WAV *waveFile)
+{
+	CRect rc;
+	CPaintDC dc(this);
+	CWnd *pWnd = GetDlgItem(IDC_PICTURE1);
+	pWnd->GetWindowRect(rc);
+	CDC *pdc = pWnd->GetDC();
+
+	CPen newPen;                                                            // 用于创建新画笔
+	CPen *pOldPen;                                                          // 用于存放旧画笔
+	CDC MemDC;                                                              // 首先定义一个显示设备对象
+	CBitmap MemBitmap;                                                      // 定义一个位图对象
+
+	int width = rc.Width();
+	int height = rc.Height();
+
+	MemDC.CreateCompatibleDC(NULL);                                         // 随后建立与屏幕显示兼容的内存显示设备
+	MemBitmap.CreateCompatibleBitmap(pdc, width, height);                   // 下面建立一个与屏幕显示兼容的位图
+	CBitmap *pOldBit = MemDC.SelectObject(&MemBitmap);                      // 将位图选入到内存显示设备中//只有选入了位图的内存显示设备才有地方绘图，画到指定的位图上
+	MemDC.FillSolidRect(1, 1, width - 2, height - 2, RGB(255, 255, 255));   // 先用背景色将位图清除干净
+
+	newPen.CreatePen(PS_SOLID, 1, RGB(255, 0, 0));                          // 创建实心画笔，粗度为1，颜色为绿色
+	pOldPen = MemDC.SelectObject(&newPen);                                  // 选择新画笔，并将旧画笔的指针保存到pOldPen
+
+	MemDC.MoveTo(0, 0);
+	unsigned int pitureWidth = (unsigned int)(width - 1);
+	unsigned int pitureHeight = (unsigned int)(height - 1);
+	unsigned int fileWidth = waveFile->getDataNumber();
+	for (int i = 1; i < width; ++i) {
+		int showP = 0;
+		if (fileWidth <= (unsigned int)pitureWidth) {
+			showP = waveFile->getData(i);
+		}
+		else {
+			long sumFrame = 0;
+			unsigned int frameSize = (unsigned int)(fileWidth / width);
+			for (unsigned int j = 0; j < frameSize; ++j) {
+				sumFrame += waveFile->getData((i - 1) * frameSize + j);
+			}
+			showP = (int)(sumFrame / frameSize);
+		}
+		// Todo 显示数值
+		MemDC.LineTo(i, showP);
+	}
+
+	MemDC.SelectObject(pOldPen);                                            // 恢复旧画笔
+	newPen.DeleteObject();                                                  // 删除新画笔									  
+	pdc->BitBlt(0, 0, width - 2, height - 2, &MemDC, 0, 0, SRCCOPY);        // 将内存中的图拷贝到屏幕上进行显示
+
+	MemBitmap.DeleteObject();                                               // 绘图完成后的清理
+	MemDC.DeleteDC();
 }

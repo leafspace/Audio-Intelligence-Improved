@@ -29,5 +29,3 @@ public:
 	int operator=(const int &dataType) const;                               // 用于支持赋值作用 例如：DataType dataType = (int) result;
 	static void setSizeFlag(const short sizeFlag);                          // 用于设置本类的数据类型
 };
-
-short DataType::sizeFlag = i8Bit;

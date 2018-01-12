@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="头文件\AudioStruct">
+      <UniqueIdentifier>{6521399d-8556-4fdf-a999-d70ca1849bec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\AudioStruct">
+      <UniqueIdentifier>{f6c7b34a-22c0-4e87-8ce6-33cd5e4e0b5d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -24,12 +30,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AudioII.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="AudioIIDlg.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -39,16 +39,40 @@
     <ClInclude Include="Resource.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="AudioStruct\Common.h">
+      <Filter>头文件\AudioStruct</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioIIDlg.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioII.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioStruct\MP3Struct.h">
+      <Filter>头文件\AudioStruct</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioStruct\WAVStruct.h">
+      <Filter>头文件\AudioStruct</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AudioII.cpp">
+    <ClCompile Include="stdafx.cpp">
       <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="AudioStruct\Common.cpp">
+      <Filter>源文件\AudioStruct</Filter>
     </ClCompile>
     <ClCompile Include="AudioIIDlg.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="stdafx.cpp">
+    <ClCompile Include="AudioII.cpp">
       <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="AudioStruct\MP3Struct.cpp">
+      <Filter>源文件\AudioStruct</Filter>
+    </ClCompile>
+    <ClCompile Include="AudioStruct\WAVStruct.cpp">
+      <Filter>源文件\AudioStruct</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -50,7 +50,7 @@ public:
 	WAV(ifstream fin);
 	~WAV();
 
-	bool isWAV();
+	bool isWAVE();
 	unsigned short getChannelNumber();
 	unsigned int getSampleFrequency();
 	unsigned short getSampleBytes();

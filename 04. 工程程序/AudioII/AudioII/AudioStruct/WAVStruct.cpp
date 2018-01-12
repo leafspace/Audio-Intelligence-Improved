@@ -1,3 +1,4 @@
+#include "../stdafx.h"
 #include "WAVStruct.h"
 
 WAV::WAV()
@@ -27,18 +28,23 @@ WAV::WAV(FILE *fp)
 		fread(&this->factChunk->eChunk, sizeof(unsigned int), 1, fp);       // 读取附加块
 	}
 
-	DataType::setSizeFlag(this->formatChunk.sampleBytes);
+	DataType::setSizeFlag(this->getSampleBytes());
 
 	fread(this->dataChunk.DATA, sizeof(char), 4, fp);                       // 读取'DATA'
 	fread(&this->dataChunk.dataLength, sizeof(unsigned int), 1, fp);        // 读取数据大小
-	double dataNumber = this->dataChunk.dataLength / this->formatChunk.sampleBytes;
+	double dataNumber = this->dataChunk.dataLength / this->getSampleBytes();
 	if (dataNumber != this->getDataNumber()
 		|| this->dataChunk.dataLength > this->waveChunk.fileLength) {       // 数值跟设置不吻合
 		this->isWAV = false;
 		return;
 	}
 	this->dataChunk.dataList = new DataType[(unsigned int)dataNumber];
-	fread(this->dataChunk.dataList, this->formatChunk.sampleBytes, (unsigned int)dataNumber, fp);         //读取数据
+	unsigned int tempNumber = 0;
+	for (unsigned int i = 0; i < dataNumber; ++i) {
+		fread(&tempNumber, this->getSampleBytes(), 1, fp);                  //读取数据
+		DataType dataType = tempNumber;
+		this->dataChunk.dataList[i] = dataType;
+	}
 }
 
 WAV::WAV(ifstream fin)
@@ -64,18 +70,23 @@ WAV::WAV(ifstream fin)
 		fin.read(reinterpret_cast<char*>(this->factChunk->eChunk), sizeof(unsigned int) * 1);             // 读取附加块
 	}
 
-	DataType::setSizeFlag(this->formatChunk.sampleBytes);
+	DataType::setSizeFlag(this->getSampleBytes());
 
 	fin.read(this->dataChunk.DATA, sizeof(char) * 4);                       // 读取'DATA'
 	fin.read(reinterpret_cast<char*>(this->dataChunk.dataLength), sizeof(unsigned int) * 1);              // 读取数据大小
-	double dataNumber = this->dataChunk.dataLength / this->formatChunk.sampleBytes;
+	double dataNumber = this->dataChunk.dataLength / this->getSampleBytes();
 	if (dataNumber != this->getDataNumber()
 		|| this->dataChunk.dataLength > this->waveChunk.fileLength) {       // 数值跟设置不吻合
 		this->isWAV = false;
 		return;
 	}
 	this->dataChunk.dataList = new DataType[(unsigned int)dataNumber];
-	fin.read(reinterpret_cast<char*>(this->dataChunk.dataList), this->formatChunk.sampleBytes * (unsigned int)dataNumber);
+	unsigned int tempNumber = 0;
+	for (unsigned int i = 0; i < dataNumber; ++i) {
+		fin.read(reinterpret_cast<char*>(&tempNumber), this->getSampleBytes());
+		DataType dataType = tempNumber;
+		this->dataChunk.dataList[i] = dataType;
+	}
 }
 
 WAV::~WAV()
@@ -84,28 +95,28 @@ WAV::~WAV()
 	factChunk = NULL;
 }
 
-bool WAV::isWAV()
+bool WAV::isWAVE()
 {
 	do {
-		if (!strstr(strupr(this->waveChunk.RIFF), "RIFF")) {
+		if (!strstr(_strupr(this->waveChunk.RIFF), "RIFF")) {
 			this->isWAV = false;
 		}
 
-		if (!strstr(strupr(this->waveChunk.WAVE), "WAVE")) {
+		if (!strstr(_strupr(this->waveChunk.WAVE), "WAVE")) {
 			this->isWAV = false;
 		}
 
-		if (!strstr(strupr(this->formatChunk.FMT), "FMT")) {
+		if (!strstr(_strupr(this->formatChunk.FMT), "FMT")) {
 			this->isWAV = false;
 		}
 
 		if (this->factChunk) {
-			if (!strstr(strupr(this->factChunk->FACT), "FACT")) {
+			if (!strstr(_strupr(this->factChunk->FACT), "FACT")) {
 				this->isWAV = false;
 			}
 		}
 
-		if (!strstr(strupr(this->dataChunk.DATA), "DATA")) {
+		if (!strstr(_strupr(this->dataChunk.DATA), "DATA")) {
 			this->isWAV = false;
 		}
 	} while (0);
@@ -124,15 +135,18 @@ unsigned int WAV::getSampleFrequency()
 
 unsigned short WAV::getSampleBytes()
 {
-	return this->formatChunk.sampleBytes;
+	return this->formatChunk.sampleBytes / this->formatChunk.channelNumber;
 }
 
 unsigned int WAV::getDataNumber()
 {
-	return (unsigned int)(this->dataChunk.dataLength / this->formatChunk.sampleBytes);
+	return (unsigned int)(this->dataChunk.dataLength / this->getSampleBytes());
 }
 
 int WAV::getData(const unsigned int index)
 {
+	if (index >= this->getDataNumber()) {
+		return 0;
+	}
 	return this->dataChunk.dataList[index];
 }

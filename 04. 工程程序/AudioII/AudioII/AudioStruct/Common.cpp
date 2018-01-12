@@ -1,4 +1,8 @@
+#include "../stdafx.h"
 #include "Common.h"
+
+short DataType::sizeFlag = i8Bit;
+
 DataType::DataType()
 {
 	switch (DataType::sizeFlag)
@@ -38,9 +42,9 @@ DataType::operator int() const                                              // �
 {
 	switch (DataType::sizeFlag)
 	{
-	case i8Bit: return *(this->data8B);
-	case i16Bit: return *(this->data16B);
-	case i32Bit: return *(this->data32B);
+	case i8Bit: return *(this->data8B); break;
+	case i16Bit: return *(this->data16B); break;
+	case i32Bit: return *(this->data32B); break;
 	default: return 0;
 	}
 }
@@ -49,12 +53,12 @@ int DataType::operator=(const int &dataType) const                          // �
 {
 	switch (DataType::sizeFlag)
 	{
-	case i8Bit: *this->data8B = dataType;
-	case i16Bit: *this->data16B = dataType;
-	case i32Bit: *this->data16B = dataType;
+	case i8Bit: *this->data8B = dataType; break;
+	case i16Bit: *this->data16B = dataType; break;
+	case i32Bit: *this->data32B = dataType; break;
 	default: return 0;
 	}
-
+	return dataType;
 }
 
 void DataType::setSizeFlag(const short sizeFlag)                            // 用于设置本类的数据类型
