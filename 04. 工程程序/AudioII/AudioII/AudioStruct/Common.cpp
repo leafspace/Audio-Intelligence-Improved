@@ -19,7 +19,18 @@ DataType::DataType()
 
 DataType::DataType(const int data)
 {
-	DataType();
+	//DataType();
+	this->data8B = NULL;
+	this->data16B = NULL;
+	this->data32B = NULL;
+	switch (DataType::sizeFlag)
+	{
+	case i8Bit: this->data8B = new int8_t(); break;
+	case i16Bit: this->data16B = new int16_t(); break;
+	case i32Bit: this->data32B = new int32_t(); break;
+	default: break;
+	}
+
 	switch (DataType::sizeFlag)
 	{
 	case i8Bit: (*this->data8B) = data; break;
@@ -63,6 +74,16 @@ int DataType::operator=(const int &dataType) const                          // �
 	default: return 0;
 	}
 	return dataType;
+}
+
+void DataType::setValue(const int value)
+{
+	switch (DataType::sizeFlag)
+	{
+	case i8Bit: *this->data8B = value; break;
+	case i16Bit: *this->data16B = value; break;
+	case i32Bit: *this->data32B = value; break;
+	}
 }
 
 void DataType::setSizeFlag(const short sizeFlag)                            // 用于设置本类的数据类型

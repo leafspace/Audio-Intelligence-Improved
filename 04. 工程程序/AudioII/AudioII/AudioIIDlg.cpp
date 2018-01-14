@@ -163,7 +163,7 @@ BOOL CAudioIIDlg::OnInitDialog()
 	this->orginWAVFile = NULL;
 	this->isRecording = FALSE;
 	this->isPlaying = FALSE;
-	this->fileFilter.Format(_T("语音文件(*.wav)|*.wav|所有文件(*.*)|*.*||"));
+	this->fileFilter.Format(_T("WAVE File(*.wav)|*.wav|ALL File(*.*)|*.*||"));
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
@@ -411,25 +411,37 @@ void CAudioIIDlg::StartDraw(WAV *waveFile)
 	newPen.CreatePen(PS_SOLID, 1, RGB(255, 0, 0));                          // 创建实心画笔，粗度为1，颜色为绿色
 	pOldPen = MemDC.SelectObject(&newPen);                                  // 选择新画笔，并将旧画笔的指针保存到pOldPen
 
-	MemDC.MoveTo(0, 0);
 	unsigned int pitureWidth = (unsigned int)(width - 1);
 	unsigned int pitureHeight = (unsigned int)(height - 1);
 	unsigned int fileWidth = waveFile->getDataNumber();
+	MemDC.MoveTo(0, pitureHeight / 2);
 	for (int i = 1; i < width; ++i) {
-		int showP = 0;
+		double showP = 0;
 		if (fileWidth <= (unsigned int)pitureWidth) {
 			showP = waveFile->getData(i);
 		}
 		else {
-			long sumFrame = 0;
 			unsigned int frameSize = (unsigned int)(fileWidth / width);
+			unsigned int frameMaxI = (i - 1) * frameSize, frameMinI = (i - 1) * frameSize;
 			for (unsigned int j = 0; j < frameSize; ++j) {
-				sumFrame += waveFile->getData((i - 1) * frameSize + j);
+				unsigned int nowIndex = (i - 1) * frameSize + j;
+				int indexTData = waveFile->getData(nowIndex);
+				if (indexTData > waveFile->getData(frameMaxI)) {
+					frameMaxI = nowIndex;
+				}
+				if (indexTData < waveFile->getData(frameMinI)) {
+					frameMinI = nowIndex;
+				}
 			}
-			showP = (int)(sumFrame / frameSize);
+			int frameMax = 0, frameMin = 0;
+			frameMax = waveFile->getData(frameMaxI);
+			frameMin = waveFile->getData(frameMinI);
+			showP = (int)(frameMax) / 2;
 		}
 		// Todo 显示数值
-		MemDC.LineTo(i, showP);
+		showP /= pow(2, (double)(waveFile->getSampleBytes() * 8 - 1));
+		showP = (pitureHeight / 2) * showP;
+		MemDC.LineTo(i, (int)((pitureHeight / 2) - showP));
 	}
 
 	MemDC.SelectObject(pOldPen);                                            // 恢复旧画笔

@@ -79,8 +79,7 @@ WAV::WAV(FILE *fp)
 	unsigned int tempNumber = 0;
 	for (unsigned int i = 0; i < dataNumber; ++i) {
 		fread(&tempNumber, this->getSampleBytes(), 1, fp);                  //读取数据
-		DataType dataType = tempNumber;
-		this->dataChunk.dataList[i] = dataType;
+		this->dataChunk.dataList[i].setValue(tempNumber);
 	}
 }
 
@@ -122,8 +121,7 @@ WAV::WAV(ifstream fin)
 	unsigned int tempNumber = 0;
 	for (unsigned int i = 0; i < dataNumber; ++i) {
 		fin.read(reinterpret_cast<char*>(&tempNumber), this->getSampleBytes());
-		DataType dataType = tempNumber;
-		this->dataChunk.dataList[i] = dataType;
+		this->dataChunk.dataList[i].setValue(tempNumber);
 	}
 }
 
