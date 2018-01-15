@@ -5,6 +5,7 @@
 #define BUFFERSIZE 256
 #include <windows.h>
 #include <mmsystem.h>
+#include "afxcmn.h"
 #include "AudioStruct\WAVStruct.h"
 #pragma comment(lib, "WINMM.LIB")
 
@@ -38,6 +39,7 @@ public:
 	afx_msg void OnBnClickedButton3();
 	afx_msg void OnBnClickedButton4();
 	afx_msg void OnBnClickedButton5();
+	afx_msg void OnNMCustomdrawSlider1(NMHDR *pNMHDR, LRESULT *pResult);
 
 private:
 	WAV *orginWAVFile;
@@ -52,5 +54,7 @@ private:
 	void loadFile();
 	void showFile(WAV *waveFile);
 
-	void StartDraw(WAV *waveFile);
+	void StartDraw(int ControlID, WAV *waveFile);
+public:
+	CSliderCtrl mSlider;
 };

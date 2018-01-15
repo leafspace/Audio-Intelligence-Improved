@@ -114,6 +114,7 @@ CAudioIIDlg::CAudioIIDlg(CWnd* pParent /*=NULL*/)
 void CAudioIIDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_SLIDER1, mSlider);
 }
 
 BEGIN_MESSAGE_MAP(CAudioIIDlg, CDialogEx)
@@ -125,6 +126,7 @@ BEGIN_MESSAGE_MAP(CAudioIIDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON3, &CAudioIIDlg::OnBnClickedButton3)
 	ON_BN_CLICKED(IDC_BUTTON4, &CAudioIIDlg::OnBnClickedButton4)
 	ON_BN_CLICKED(IDC_BUTTON5, &CAudioIIDlg::OnBnClickedButton5)
+	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER1, &CAudioIIDlg::OnNMCustomdrawSlider1)
 END_MESSAGE_MAP()
 
 
@@ -164,6 +166,9 @@ BOOL CAudioIIDlg::OnInitDialog()
 	this->isRecording = FALSE;
 	this->isPlaying = FALSE;
 	this->fileFilter.Format(_T("WAVE File(*.wav)|*.wav|ALL File(*.*)|*.*||"));
+	this->mSlider.SetRange(1, 100);
+	this->mSlider.SetPos(70);
+	this->mSlider.SetPageSize(20);
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
@@ -384,14 +389,14 @@ void CAudioIIDlg::showFile(WAV *waveFile)
 		return;
 	}
 
-	this->StartDraw(waveFile);
+	this->StartDraw(IDC_PICTURE1, waveFile);
 }
 
-void CAudioIIDlg::StartDraw(WAV *waveFile)
+void CAudioIIDlg::StartDraw(int ControlID, WAV *waveFile)
 {
 	CRect rc;
 	CPaintDC dc(this);
-	CWnd *pWnd = GetDlgItem(IDC_PICTURE1);
+	CWnd *pWnd = GetDlgItem(ControlID);
 	pWnd->GetWindowRect(rc);
 	CDC *pdc = pWnd->GetDC();
 
@@ -408,17 +413,19 @@ void CAudioIIDlg::StartDraw(WAV *waveFile)
 	CBitmap *pOldBit = MemDC.SelectObject(&MemBitmap);                      // 将位图选入到内存显示设备中//只有选入了位图的内存显示设备才有地方绘图，画到指定的位图上
 	MemDC.FillSolidRect(1, 1, width - 2, height - 2, RGB(255, 255, 255));   // 先用背景色将位图清除干净
 
-	newPen.CreatePen(PS_SOLID, 1, RGB(255, 0, 0));                          // 创建实心画笔，粗度为1，颜色为绿色
+	newPen.CreatePen(PS_SOLID, 1, RGB(0, 0, 255));                          // 创建实心画笔，粗度为1，颜色为绿色
 	pOldPen = MemDC.SelectObject(&newPen);                                  // 选择新画笔，并将旧画笔的指针保存到pOldPen
 
 	unsigned int pitureWidth = (unsigned int)(width - 1);
 	unsigned int pitureHeight = (unsigned int)(height - 1);
 	unsigned int fileWidth = waveFile->getDataNumber();
-	MemDC.MoveTo(0, pitureHeight / 2);
+	int oldMaxX = 0, oldMaxY = pitureHeight / 2;
+	int oldMinX = 0, oldMinY = pitureHeight / 2;
 	for (int i = 1; i < width; ++i) {
-		double showP = 0;
+		double showMax = 0, showMin = 0;
 		if (fileWidth <= (unsigned int)pitureWidth) {
-			showP = waveFile->getData(i);
+			showMax = waveFile->getData(i);
+			showMin = waveFile->getData(i);
 		}
 		else {
 			unsigned int frameSize = (unsigned int)(fileWidth / width);
@@ -436,18 +443,49 @@ void CAudioIIDlg::StartDraw(WAV *waveFile)
 			int frameMax = 0, frameMin = 0;
 			frameMax = waveFile->getData(frameMaxI);
 			frameMin = waveFile->getData(frameMinI);
-			showP = (int)(frameMax) / 2;
+			showMax = (int)(frameMax);
+			showMin = (int)(frameMin);
 		}
 		// Todo 显示数值
-		showP /= pow(2, (double)(waveFile->getSampleBytes() * 8 - 1));
-		showP = (pitureHeight / 2) * showP;
-		MemDC.LineTo(i, (int)((pitureHeight / 2) - showP));
+		showMax /= pow(2, (double)(waveFile->getSampleBytes() * 8 - 1));
+		showMax = (pitureHeight / 2) * showMax;
+		showMin /= pow(2, (double)(waveFile->getSampleBytes() * 8 - 1));
+		showMin = (pitureHeight / 2) * showMin;
+		MemDC.MoveTo(oldMaxX, oldMaxY);
+		MemDC.LineTo(i, (int)((pitureHeight / 2) - showMax));
+		MemDC.MoveTo(oldMinX, oldMinY);
+		MemDC.LineTo(i, (int)((pitureHeight / 2) - showMin));
+		oldMaxX = i;
+		oldMaxY = (int)((pitureHeight / 2) - showMax);
+		oldMinX = i;
+		oldMinY = (int)((pitureHeight / 2) - showMin);
 	}
 
 	MemDC.SelectObject(pOldPen);                                            // 恢复旧画笔
-	newPen.DeleteObject();                                                  // 删除新画笔									  
+	newPen.DeleteObject();                                                  // 删除新画笔
+
+	newPen.CreatePen(PS_SOLID, 1, RGB(0, 0, 0));                            // 创建实心画笔，粗度为1，颜色为绿色
+	pOldPen = MemDC.SelectObject(&newPen);                                  // 选择新画笔，并将旧画笔的指针保存到pOldPen
+	MemDC.MoveTo(0, pitureHeight / 2);
+	MemDC.LineTo(pitureWidth, pitureHeight / 2);
+	for (unsigned int i = 0; i < pitureWidth; i += (pitureWidth / 10)) {
+		MemDC.MoveTo(i, pitureHeight / 2 + 5);
+		MemDC.LineTo(i, pitureHeight / 2 - 5);
+	}
+
 	pdc->BitBlt(0, 0, width - 2, height - 2, &MemDC, 0, 0, SRCCOPY);        // 将内存中的图拷贝到屏幕上进行显示
 
 	MemBitmap.DeleteObject();                                               // 绘图完成后的清理
 	MemDC.DeleteDC();
+}
+
+
+void CAudioIIDlg::OnNMCustomdrawSlider1(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
+	*pResult = 0;
+	int nowPos = this->mSlider.GetPos();
+	CString showPos;
+	showPos.Format(_T("Process %d%%"), nowPos);
+	SetDlgItemText(IDC_BUTTON5, showPos);
 }
