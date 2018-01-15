@@ -252,7 +252,7 @@ void CAudioIIDlg::OnBnClickedButton2()
 
 	}
 	else {
-		CFileDialog fileDlg(FALSE, _T("wav"), _T("outwave"), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, this->fileFilter, this);
+		CFileDialog fileDlg(FALSE, _T("wav"), _T("inputwave"), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, this->fileFilter, this);
 		int chooseID = fileDlg.DoModal();                                       // 开始弹窗
 		if (chooseID == IDOK) {
 			this->orginWAVFilePath = fileDlg.GetPathName();
@@ -281,7 +281,7 @@ void CAudioIIDlg::OnBnClickedButton2()
 void CAudioIIDlg::OnBnClickedButton3()
 {
 	CSaveFileDlg saveDlg;
-	CFileDialog fileDlg(FALSE, _T("wav"), _T("outwave"), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, this->fileFilter, this);
+	CFileDialog fileDlg(FALSE, _T("wav"), _T("outputwave"), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, this->fileFilter, this);
 	do {
 		int chooseID = fileDlg.DoModal();
 		if (chooseID == IDOK) {
