@@ -19,6 +19,12 @@
     <Filter Include="源文件\AudioStruct">
       <UniqueIdentifier>{f6c7b34a-22c0-4e87-8ce6-33cd5e4e0b5d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="源文件\Record">
+      <UniqueIdentifier>{1c0be32a-b4f1-4ea9-bf3e-1818ea5ee624}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Record">
+      <UniqueIdentifier>{a2c9e827-acd0-48ad-ae9b-fd19613171cd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -54,6 +60,9 @@
     <ClInclude Include="AudioStruct\WAVStruct.h">
       <Filter>头文件\AudioStruct</Filter>
     </ClInclude>
+    <ClInclude Include="Record\HwMCI.h">
+      <Filter>源文件\Record</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -73,6 +82,9 @@
     </ClCompile>
     <ClCompile Include="AudioStruct\WAVStruct.cpp">
       <Filter>源文件\AudioStruct</Filter>
+    </ClCompile>
+    <ClCompile Include="Record\HwMCI.cpp">
+      <Filter>头文件\Record</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
