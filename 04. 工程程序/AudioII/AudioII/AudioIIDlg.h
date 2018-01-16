@@ -31,6 +31,7 @@ protected:
 	virtual BOOL OnInitDialog();
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 	afx_msg void OnPaint();
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
 public:
@@ -48,6 +49,7 @@ private:
 	CString fileFilter;
 	CString orginWAVFilePath;
 	CString outWAVFilePath;
+	HANDLE playSoundHandle;
 	void cstringToCharP(const CString cstring, char* outString);
 	void charPathToOut(const char* filePath, char* outString);
 
@@ -57,4 +59,10 @@ private:
 	void StartDraw(int ControlID, WAV *waveFile);
 public:
 	CSliderCtrl mSlider;
+	void BeginPlaySound(CString filePath);
+	void StopPlaySound();
+
 };
+
+DWORD WINAPI TPlaySound(LPVOID lpParam);
+DWORD WINAPI TStopSound(LPVOID lpParam);

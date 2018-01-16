@@ -120,6 +120,7 @@ void CAudioIIDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CAudioIIDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
+	ON_WM_TIMER()
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDC_BUTTON1, &CAudioIIDlg::OnBnClickedButton1)
 	ON_BN_CLICKED(IDC_BUTTON2, &CAudioIIDlg::OnBnClickedButton2)
@@ -169,6 +170,7 @@ BOOL CAudioIIDlg::OnInitDialog()
 	this->mSlider.SetRange(1, 100);
 	this->mSlider.SetPos(70);
 	this->mSlider.SetPageSize(20);
+	this->playSoundHandle = NULL;
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
@@ -314,24 +316,19 @@ void CAudioIIDlg::OnBnClickedButton4()
 		GetDlgItemTextW(IDC_EDIT2, filePath);
 		this->cstringToCharP(filePath, tempBuffer);
 		this->charPathToOut(tempBuffer, filePathP);
-		CString outPath(filePathP);
 		fp = fopen(filePathP, "rb");
 		if (fp == NULL) {
-			MessageBoxA(NULL, "Have no file !", "Error", MB_ICONSTOP | MB_YESNO);
+			MessageBoxA(NULL, "Have no file !", "Error", MB_ICONSTOP | MB_OK);
 			break;
 		}
-		// Todo create a thread to play sound
-		if (isPlaying) {
-			PlaySound(outPath, nullptr, SND_ASYNC | SND_FILENAME);
-			isPlaying = FALSE;
-			SetDlgItemText(IDC_BUTTON4, TEXT("Stop"));
+		fclose(fp);
+		if (this->isPlaying) {
+			CloseHandle(this->playSoundHandle);
+			this->StopPlaySound();
 		}
 		else {
-			PlaySound(nullptr, nullptr, SND_ASYNC | SND_FILENAME);
-			isPlaying = TRUE;
-			SetDlgItemText(IDC_BUTTON4, TEXT("Play"));
+			this->BeginPlaySound(filePath);
 		}
-		fclose(fp);
 	} while (0);
 	memset(tempBuffer, 0, BUFFERSIZE);
 	memset(filePathP, 0, BUFFERSIZE);
@@ -343,6 +340,16 @@ void CAudioIIDlg::OnBnClickedButton5()
 	// 将语音文件数据处理
 	this->loadFile();
 
+}
+
+void CAudioIIDlg::OnNMCustomdrawSlider1(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
+	*pResult = 0;
+	int nowPos = this->mSlider.GetPos();
+	CString showPos;
+	showPos.Format(_T("Process %d%%"), nowPos);
+	SetDlgItemText(IDC_BUTTON5, showPos);
 }
 
 void CAudioIIDlg::cstringToCharP(const CString cstring, char* outString)
@@ -479,13 +486,50 @@ void CAudioIIDlg::StartDraw(int ControlID, WAV *waveFile)
 	MemDC.DeleteDC();
 }
 
-
-void CAudioIIDlg::OnNMCustomdrawSlider1(NMHDR *pNMHDR, LRESULT *pResult)
+void CAudioIIDlg::OnTimer(UINT_PTR nIDEvent)
 {
-	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
-	*pResult = 0;
-	int nowPos = this->mSlider.GetPos();
-	CString showPos;
-	showPos.Format(_T("Process %d%%"), nowPos);
-	SetDlgItemText(IDC_BUTTON5, showPos);
+	// Todo 播放进度绘图
+	// 需要保存原先的语音数据
+
+	CDialogEx::OnTimer(nIDEvent);
+	CDialogEx::OnPaint();
+}
+
+void CAudioIIDlg::BeginPlaySound(CString filePath)
+{
+	struct RECVPARAM
+	{
+		CString filePath;
+	};
+	RECVPARAM revPara = { filePath };
+	this->playSoundHandle = CreateThread(NULL, 0, TPlaySound, &revPara, 0, NULL);
+	SetTimer(1, 100, NULL);
+	this->isPlaying = TRUE;
+	SetDlgItemText(IDC_BUTTON4, TEXT("Stop"));
+}
+
+void CAudioIIDlg::StopPlaySound()
+{
+	this->playSoundHandle = CreateThread(NULL, 0, TStopSound, NULL, 0, NULL);
+	this->isPlaying = FALSE;
+	SetDlgItemText(IDC_BUTTON4, TEXT("Play"));
+}
+
+DWORD WINAPI TPlaySound(LPVOID lpParam)
+{
+	struct RECVPARAM
+	{
+		CString filePath;
+	};
+	CString filePath = ((RECVPARAM *)lpParam)->filePath;
+	CAudioIIDlg *pDlg = (CAudioIIDlg*)(AfxGetApp()->GetMainWnd());
+	PlaySound(filePath, AfxGetInstanceHandle(), SND_SYNC | SND_FILENAME);
+	pDlg->StopPlaySound();
+	return NULL;
+}
+
+DWORD WINAPI TStopSound(LPVOID lpParam)
+{
+	PlaySound(NULL, AfxGetInstanceHandle(), SND_SYNC | SND_FILENAME);
+	return NULL;
 }
