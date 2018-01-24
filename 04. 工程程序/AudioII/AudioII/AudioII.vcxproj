@@ -41,6 +41,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <EmbedManifest>true</EmbedManifest>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -101,6 +102,7 @@
   <ItemGroup>
     <ClInclude Include="AudioII.h" />
     <ClInclude Include="AudioIIDlg.h" />
+    <ClInclude Include="AudioLib\AudioLib.h" />
     <ClInclude Include="AudioStruct\Common.h" />
     <ClInclude Include="AudioStruct\MP3Struct.h" />
     <ClInclude Include="AudioStruct\WAVStruct.h" />
@@ -112,6 +114,9 @@
   <ItemGroup>
     <ClCompile Include="AudioII.cpp" />
     <ClCompile Include="AudioIIDlg.cpp" />
+    <ClCompile Include="AudioLib\AudioLib.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../StdAfx.h</PrecompiledHeaderFile>
+    </ClCompile>
     <ClCompile Include="AudioStruct\Common.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../stdafx.h</PrecompiledHeaderFile>
     </ClCompile>

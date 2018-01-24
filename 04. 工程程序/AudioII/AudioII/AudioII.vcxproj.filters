@@ -25,6 +25,12 @@
     <Filter Include="头文件\Record">
       <UniqueIdentifier>{a2c9e827-acd0-48ad-ae9b-fd19613171cd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="头文件\AudioLib">
+      <UniqueIdentifier>{1b06b5dc-6212-44f6-82ef-2ed16f86a540}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\AudioLib">
+      <UniqueIdentifier>{22584f68-5210-4539-93c2-05d63f17485f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -63,6 +69,9 @@
     <ClInclude Include="Record\HwMCI.h">
       <Filter>源文件\Record</Filter>
     </ClInclude>
+    <ClInclude Include="AudioLib\AudioLib.h">
+      <Filter>头文件\AudioLib</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -85,6 +94,9 @@
     </ClCompile>
     <ClCompile Include="Record\HwMCI.cpp">
       <Filter>头文件\Record</Filter>
+    </ClCompile>
+    <ClCompile Include="AudioLib\AudioLib.cpp">
+      <Filter>源文件\AudioLib</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

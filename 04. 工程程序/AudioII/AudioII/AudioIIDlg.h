@@ -53,8 +53,8 @@ private:
 	void cstringToCharP(const CString cstring, char* outString);
 	void charPathToOut(const char* filePath, char* outString);
 
-	void loadFile();
-	void showFile(WAV *waveFile);
+	void loadFile(CString wavFilePath);
+	void showFile(int controlID, WAV *waveFile);
 
 	void StartDraw(int ControlID, WAV *waveFile);
 public:

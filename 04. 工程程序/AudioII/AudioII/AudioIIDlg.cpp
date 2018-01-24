@@ -338,8 +338,10 @@ void CAudioIIDlg::OnBnClickedButton4()
 void CAudioIIDlg::OnBnClickedButton5()
 {
 	// 将语音文件数据处理
-	this->loadFile();
+	this->loadFile(this->orginWAVFilePath);
+	// Todo handle all wav walue
 
+	this->showFile(IDC_PICTURE2, this->orginWAVFile);
 }
 
 void CAudioIIDlg::OnNMCustomdrawSlider1(NMHDR *pNMHDR, LRESULT *pResult)
@@ -370,10 +372,10 @@ void CAudioIIDlg::charPathToOut(const char* filePath, char* outString)
 	outString[index] = 0;
 }
 
-void CAudioIIDlg::loadFile()
+void CAudioIIDlg::loadFile(CString wavFilePath)
 {
 	char tempBuffer[BUFFERSIZE] = { 0 }, filePathP[BUFFERSIZE] = { 0 };
-	this->cstringToCharP(this->orginWAVFilePath, tempBuffer);
+	this->cstringToCharP(wavFilePath, tempBuffer);
 	this->charPathToOut(tempBuffer, filePathP);
 	FILE *fp = NULL;
 	if ((fp = fopen(filePathP, "rb")) == NULL) {
@@ -386,17 +388,17 @@ void CAudioIIDlg::loadFile()
 	}
 	this->orginWAVFile = new WAV(fp);
 
-	this->showFile(this->orginWAVFile);
+	this->showFile(IDC_PICTURE1, this->orginWAVFile);
 }
 
-void CAudioIIDlg::showFile(WAV *waveFile)
+void CAudioIIDlg::showFile(int controlID, WAV *waveFile)
 {
 	if (waveFile == NULL) {
 		MessageBoxA(NULL, "No file data !", "Error", MB_ICONSTOP | MB_OK);
 		return;
 	}
 
-	this->StartDraw(IDC_PICTURE1, waveFile);
+	this->StartDraw(controlID, waveFile);
 }
 
 void CAudioIIDlg::StartDraw(int ControlID, WAV *waveFile)
