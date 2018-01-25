@@ -1,6 +1,8 @@
 ﻿#pragma once
-#include <stdio.h>
+#include <math.h>
+#include <vector>
 #include <fstream>
+#include <stdio.h>
 #include <stdint.h>
 #include <iostream>
 using namespace std;
