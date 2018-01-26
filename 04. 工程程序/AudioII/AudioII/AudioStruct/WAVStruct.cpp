@@ -127,8 +127,10 @@ WAV::WAV(ifstream fin)
 
 WAV::~WAV()
 {
-	delete factChunk;
-	factChunk = NULL;
+	if (factChunk != NULL) {
+		delete factChunk;
+		factChunk = NULL;
+	}
 }
 
 bool WAV::isWAVE()
@@ -187,9 +189,9 @@ int WAV::getData(const unsigned int index)
 	return this->dataChunk.dataList[index];
 }
 
-void WAV::setData(const unsigned int index, DataType dataSample)
+void WAV::setData(const unsigned int index, int dataSample)
 {
 	if (index <= this->getDataNumber()) {
-		this->dataChunk.dataList[index] = dataSample;
+		this->dataChunk.dataList[index].setValue(dataSample);
 	}
 }

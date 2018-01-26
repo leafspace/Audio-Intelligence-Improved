@@ -49,8 +49,10 @@ DataType::~DataType()
 
 inline void DataType::clearBuffer(void* pointer)                            // 提供与本类清理数据用
 {
-	delete pointer;
-	pointer = NULL;
+	if (pointer != NULL) {
+		delete pointer;
+		pointer = NULL;
+	}
 }
 
 DataType::operator int() const                                              // 用于返回本类数据 例如：int result = (int) dataType;

@@ -338,6 +338,7 @@ void CAudioIIDlg::OnBnClickedButton4()
 void CAudioIIDlg::OnBnClickedButton5()
 {
 	// 将语音文件数据处理
+	int nowPos = this->mSlider.GetPos();
 	this->loadFile(this->orginWAVFilePath);
 	CharacteristicParameters wavCParameters;
 	frameEnergy(this->orginWAVFile, &wavCParameters);
@@ -349,7 +350,7 @@ void CAudioIIDlg::OnBnClickedButton5()
 			// Todo 此处没有效果
 			int indexValue = this->orginWAVFile->getData(j);
 			int valueFlag = indexValue > 0 ? 1 : -1;
-			int outValue = indexValue + (int)(indexValue * 0.2) * valueFlag;
+			int outValue = indexValue + (int)(indexValue * nowPos / 100) * valueFlag;
 			this->orginWAVFile->setData(j, outValue);
 		}
 	}
@@ -396,10 +397,12 @@ void CAudioIIDlg::loadFile(CString wavFilePath)
 		return;
 	}
 	if (this->orginWAVFile != NULL) {
-		delete this->orginWAVFile;
+		//delete this->orginWAVFile;
 		this->orginWAVFile = NULL;
 	}
+
 	this->orginWAVFile = new WAV(fp);
+	fclose(fp);
 
 	this->showFile(IDC_PICTURE1, this->orginWAVFile);
 }
