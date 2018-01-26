@@ -27,7 +27,16 @@
 *.lib
 
 # Executables
-*.exe
+
+# Resource
+*.aps
+
+# Visual Studio Debug
+*.tlog
+*.log
+*.idb
+*.pdb
+*.ilk
+
 *.out
-*.app
 /.svn
