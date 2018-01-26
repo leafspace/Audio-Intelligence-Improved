@@ -60,4 +60,6 @@ public:
 	unsigned short getSampleBytes();
 	unsigned int getDataNumber();
 	int getData(const unsigned int index);
+
+	void setData(const unsigned int index, DataType dataSample);
 };

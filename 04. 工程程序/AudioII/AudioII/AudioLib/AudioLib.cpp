@@ -21,7 +21,7 @@ double Hamming_window(double data)                                          // �
 	}
 }
 
-bool Frame_Energy(WAV* const wavFile, CharacteristicParameters *prameters)  // 用于求短时帧能量
+bool frameEnergy(WAV* const wavFile, CharacteristicParameters *prameters)   // 用于求短时帧能量
 {
 	prameters->maxEnergy = 0;                                               // 最大短时帧能量置0
 	prameters->minEnergy = 1000000;                                         // 最小短时帧能量置1000000
@@ -44,7 +44,7 @@ bool Frame_Energy(WAV* const wavFile, CharacteristicParameters *prameters)  // �
 	return true;
 }
 
-bool Frame_ZCR(WAV* const wavFile, CharacteristicParameters *prameters)     // 用于求短时过零率
+bool frameZCR(WAV* const wavFile, CharacteristicParameters *prameters)      // 用于求短时过零率
 {
 	prameters->maxZCR = 0;                                                  // 最大短时过零率置0
 	prameters->minZCR = 1000000;                                            // 最小短时过零率置1000000
@@ -67,7 +67,7 @@ bool Frame_ZCR(WAV* const wavFile, CharacteristicParameters *prameters)     // �
 	return true;
 }
 
-bool Endpoint_Detection(WAV* const wavFile, CharacteristicParameters *prameters)                          // 端点检测函数
+bool endpointDetection(WAV* const wavFile, CharacteristicParameters *prameters)                           // 端点检测函数
 {
 
 	double energyHigh = 10;                                                 // 初始化短时帧能量高门限

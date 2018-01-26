@@ -339,7 +339,20 @@ void CAudioIIDlg::OnBnClickedButton5()
 {
 	// 将语音文件数据处理
 	this->loadFile(this->orginWAVFilePath);
-	// Todo handle all wav walue
+	CharacteristicParameters wavCParameters;
+	frameEnergy(this->orginWAVFile, &wavCParameters);
+	frameZCR(this->orginWAVFile, &wavCParameters);
+	endpointDetection(this->orginWAVFile, &wavCParameters);
+	for (unsigned short i = 0; i < wavCParameters.voiceParagraph.size(); ++i) {
+		VoiceParagraph voiceParagraphT = wavCParameters.voiceParagraph[i];
+		for (unsigned long j = voiceParagraphT.begin; j < voiceParagraphT.end; ++j) {
+			// Todo 此处没有效果
+			int indexValue = this->orginWAVFile->getData(j);
+			int valueFlag = indexValue > 0 ? 1 : -1;
+			int outValue = indexValue + (int)(indexValue * 0.2) * valueFlag;
+			this->orginWAVFile->setData(j, outValue);
+		}
+	}
 
 	this->showFile(IDC_PICTURE2, this->orginWAVFile);
 }

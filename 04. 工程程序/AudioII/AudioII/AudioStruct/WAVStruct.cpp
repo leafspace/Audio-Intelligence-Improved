@@ -186,3 +186,10 @@ int WAV::getData(const unsigned int index)
 	}
 	return this->dataChunk.dataList[index];
 }
+
+void WAV::setData(const unsigned int index, DataType dataSample)
+{
+	if (index <= this->getDataNumber()) {
+		this->dataChunk.dataList[index] = dataSample;
+	}
+}

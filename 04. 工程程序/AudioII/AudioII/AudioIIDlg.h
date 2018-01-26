@@ -3,10 +3,13 @@
 
 #pragma once
 #define BUFFERSIZE 256
+
+#include "afxcmn.h"
 #include <windows.h>
 #include <mmsystem.h>
-#include "afxcmn.h"
+#include "AudioLib\AudioLib.h"
 #include "AudioStruct\WAVStruct.h"
+
 #pragma comment(lib, "WINMM.LIB")
 
 // CAudioIIDlg 对话框

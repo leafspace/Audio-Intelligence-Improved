@@ -1,4 +1,5 @@
-﻿#define FRAMESIZE	256                                                     // 每个窗的窗长
+﻿#pragma once
+#define FRAMESIZE	256                                                     // 每个窗的窗长
 #define FRAMESHIFT	125                                                     // 窗函数的帧移
 #define PI			3.14159
 
@@ -40,6 +41,6 @@ short Sign_Function(double data);
 double Hamming_window(double data);
 
 bool frameEnergy(WAV* const wavFile, CharacteristicParameters *prameters);
-bool Frame_ZCR(WAV* const wavFile, CharacteristicParameters *prameters);
+bool frameZCR(WAV* const wavFile, CharacteristicParameters *prameters);
 
-bool Endpoint_Detection(WAV* const wavFile, CharacteristicParameters *prameters);
+bool endpointDetection(WAV* const wavFile, CharacteristicParameters *prameters);
