@@ -48,10 +48,13 @@ private:
 	FormatChunk formatChunk;                                                // 格式块
 	FactChunk *factChunk;                                                   // 附加块
 	DataChunk dataChunk;                                                    // 数据块
+
+	void readWAV(FILE *fp);
+	void readWAV(ifstream &fin);
 public:
 	WAV();
 	WAV(FILE *fp);
-	WAV(ifstream fin);
+	WAV(ifstream &fin);
 	~WAV();
 
 	bool isWAVE();
@@ -62,4 +65,7 @@ public:
 	int getData(const unsigned int index);
 
 	void setData(const unsigned int index, int dataSample);
+
+	void writeWAV(FILE *fp);
+	void writeWAV(ofstream &fout);
 };

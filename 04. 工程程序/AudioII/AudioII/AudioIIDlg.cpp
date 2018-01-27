@@ -103,8 +103,6 @@ void CSaveFileDlg::OnBnClickedOk()
 // CAudioIIDlg 对话框
 
 
-
-
 CAudioIIDlg::CAudioIIDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CAudioIIDlg::IDD, pParent)
 {
@@ -397,6 +395,7 @@ void CAudioIIDlg::loadFile(CString wavFilePath)
 		return;
 	}
 	if (this->orginWAVFile != NULL) {
+		// Todo 此处内存泄漏了
 		//delete this->orginWAVFile;
 		this->orginWAVFile = NULL;
 	}

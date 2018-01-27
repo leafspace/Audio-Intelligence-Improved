@@ -45,6 +45,26 @@ WAV::WAV()
 WAV::WAV(FILE *fp)
 {
 	WAV();
+	this->readWAV(fp);
+}
+
+WAV::WAV(ifstream &fin)
+{
+	WAV();
+	this->readWAV(fin);
+
+}
+
+WAV::~WAV()
+{
+	if (factChunk != NULL) {
+		delete factChunk;
+		factChunk = NULL;
+	}
+}
+
+void WAV::readWAV(FILE *fp)
+{
 	fread(this->waveChunk.RIFF, sizeof(char), 4, fp);                       // 读取'RIFF'
 	fread(&this->waveChunk.fileLength, sizeof(unsigned int), 1, fp);        // 读取文件的大小
 	fread(this->waveChunk.WAVE, sizeof(char), 4, fp);                       // 读取'WAVE'
@@ -83,9 +103,8 @@ WAV::WAV(FILE *fp)
 	}
 }
 
-WAV::WAV(ifstream fin)
+void WAV::readWAV(ifstream &fin)
 {
-	WAV();
 	fin.read(this->waveChunk.RIFF, sizeof(char) * 4);
 	fin.read(this->waveChunk.RIFF, sizeof(char) * 4);                       // 读取'RIFF'
 	fin.read(reinterpret_cast<char*>(this->waveChunk.fileLength), sizeof(unsigned int) * 1);              // 读取文件的大小
@@ -122,14 +141,6 @@ WAV::WAV(ifstream fin)
 	for (unsigned int i = 0; i < dataNumber; ++i) {
 		fin.read(reinterpret_cast<char*>(&tempNumber), this->getSampleBytes());
 		this->dataChunk.dataList[i].setValue(tempNumber);
-	}
-}
-
-WAV::~WAV()
-{
-	if (factChunk != NULL) {
-		delete factChunk;
-		factChunk = NULL;
 	}
 }
 
@@ -193,5 +204,64 @@ void WAV::setData(const unsigned int index, int dataSample)
 {
 	if (index <= this->getDataNumber()) {
 		this->dataChunk.dataList[index].setValue(dataSample);
+	}
+}
+
+void WAV::writeWAV(FILE *fp)
+{
+	fwrite(this->waveChunk.RIFF, sizeof(char), 4, fp);                      // 写入'RIFF'
+	fwrite(&this->waveChunk.fileLength, sizeof(unsigned int), 1, fp);       // 写入文件的大小
+	fwrite(this->waveChunk.WAVE, sizeof(char), 4, fp);                      // 写入'WAVE'
+
+	fwrite(this->formatChunk.FMT, sizeof(char), 4, fp);                     // 写入'FMT'
+	fwrite(&this->formatChunk.fChunkLength, sizeof(unsigned int), 1, fp);   // 写入块大小
+	fwrite(&this->formatChunk.formatCategory, sizeof(unsigned short), 1, fp);                             // 写入文件标签
+	fwrite(&this->formatChunk.channelNumber, sizeof(unsigned short), 1, fp);// 写入声道数
+	fwrite(&this->formatChunk.sampleFrequency, sizeof(unsigned int), 1, fp);// 写入采样频率
+	fwrite(&this->formatChunk.transferRate, sizeof(unsigned int), 1, fp);   // 写入数据传送速率
+	fwrite(&this->formatChunk.sampleBytes, sizeof(unsigned short), 1, fp);  // 写入样本字节数
+	fwrite(&this->formatChunk.sampleBits, sizeof(unsigned short), 1, fp);   // 写入样本位数
+	if (this->formatChunk.fChunkLength > 16) {                              // 含有附加块的情况
+		fwrite(&this->formatChunk.extraInfo, sizeof(unsigned short), 1, fp);// 写入附加信息
+		fwrite(this->factChunk->FACT, sizeof(char), 4, fp);                 // 写入'FACT'
+		fwrite(&this->factChunk->eChunkLength, sizeof(unsigned int), 1, fp);// 写入块大小
+		fwrite(&this->factChunk->eChunk, sizeof(unsigned int), 1, fp);      // 写入附加块
+	}
+
+	fwrite(this->dataChunk.DATA, sizeof(char), 4, fp);                      // 写入'DATA'
+	fwrite(&this->dataChunk.dataLength, sizeof(unsigned int), 1, fp);       // 写入数据大小
+	double dataNumber = this->dataChunk.dataLength / this->getSampleBytes();
+	for (unsigned int i = 0; i < dataNumber; ++i) {
+		fwrite(&this->dataChunk.dataList[i], this->getSampleBytes(), 1, fp);// 写入数据
+	}
+}
+
+void WAV::writeWAV(ofstream &fout)
+{
+	fout.write(this->waveChunk.RIFF, sizeof(char) * 4);
+	fout.write(this->waveChunk.RIFF, sizeof(char) * 4);                     // 写入'RIFF'
+	fout.write(reinterpret_cast<char*>(this->waveChunk.fileLength), sizeof(unsigned int) * 1);              // 写入文件的大小
+	fout.write(this->waveChunk.WAVE, sizeof(char) * 4);                     // 写入'WAVE'
+
+	fout.write(this->formatChunk.FMT, sizeof(char) * 4);                    // 写入'FMT'
+	fout.write(reinterpret_cast<char*>(this->formatChunk.fChunkLength), sizeof(unsigned int) * 1);          // 写入块大小
+	fout.write(reinterpret_cast<char*>(this->formatChunk.formatCategory), sizeof(unsigned short) * 1);      // 写入文件标签
+	fout.write(reinterpret_cast<char*>(this->formatChunk.channelNumber), sizeof(unsigned short) * 1);       // 写入声道数
+	fout.write(reinterpret_cast<char*>(this->formatChunk.sampleFrequency), sizeof(unsigned int) * 1);       // 写入采样频率
+	fout.write(reinterpret_cast<char*>(this->formatChunk.transferRate), sizeof(unsigned int) * 1);          // 写入数据传送速率
+	fout.write(reinterpret_cast<char*>(this->formatChunk.sampleBytes), sizeof(unsigned short) * 1);         // 写入样本字节数
+	fout.write(reinterpret_cast<char*>(this->formatChunk.sampleBits), sizeof(unsigned short) * 1);          // 写入样本位数
+	if (this->formatChunk.fChunkLength > 16) {                              // 含有附加块的情况
+		fout.write(reinterpret_cast<char*>(this->formatChunk.extraInfo), sizeof(unsigned short) * 1);       // 写入附加信息
+		fout.write(this->factChunk->FACT, sizeof(char) * 4);                // 写入'FACT'
+		fout.write(reinterpret_cast<char*>(this->factChunk->eChunkLength), sizeof(unsigned int) * 1);       // 写入块大小
+		fout.write(reinterpret_cast<char*>(this->factChunk->eChunk), sizeof(unsigned int) * 1);             // 写入附加块
+	}
+
+	fout.write(this->dataChunk.DATA, sizeof(char) * 4);                     // 写入'DATA'
+	fout.write(reinterpret_cast<char*>(this->dataChunk.dataLength), sizeof(unsigned int) * 1);              // 写入数据大小
+	double dataNumber = this->dataChunk.dataLength / this->getSampleBytes();
+	for (unsigned int i = 0; i < dataNumber; ++i) {
+		fout.write(reinterpret_cast<char*>(&this->dataChunk.dataList[i]), this->getSampleBytes());
 	}
 }
