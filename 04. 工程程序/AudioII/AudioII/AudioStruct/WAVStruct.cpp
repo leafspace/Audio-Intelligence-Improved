@@ -230,9 +230,9 @@ void WAV::writeWAV(FILE *fp)
 
 	fwrite(this->dataChunk.DATA, sizeof(char), 4, fp);                      // 写入'DATA'
 	fwrite(&this->dataChunk.dataLength, sizeof(unsigned int), 1, fp);       // 写入数据大小
-	double dataNumber = this->dataChunk.dataLength / this->getSampleBytes();
-	for (unsigned int i = 0; i < dataNumber; ++i) {
-		fwrite(&this->dataChunk.dataList[i], this->getSampleBytes(), 1, fp);// 写入数据
+	for (unsigned int i = 0, tempNumber = 0; i < this->getDataNumber(); ++i) {
+		tempNumber = this->dataChunk.dataList[i];
+		fwrite(&tempNumber, this->getSampleBytes(), 1, fp);// 写入数据
 	}
 }
 
@@ -260,8 +260,8 @@ void WAV::writeWAV(ofstream &fout)
 
 	fout.write(this->dataChunk.DATA, sizeof(char) * 4);                     // 写入'DATA'
 	fout.write(reinterpret_cast<char*>(this->dataChunk.dataLength), sizeof(unsigned int) * 1);              // 写入数据大小
-	double dataNumber = this->dataChunk.dataLength / this->getSampleBytes();
-	for (unsigned int i = 0; i < dataNumber; ++i) {
-		fout.write(reinterpret_cast<char*>(&this->dataChunk.dataList[i]), this->getSampleBytes());
+	for (unsigned int i = 0, tempNumber = 0; i < this->getDataNumber(); ++i) {
+		tempNumber = this->dataChunk.dataList[i];
+		fout.write(reinterpret_cast<char*>(&tempNumber), this->getSampleBytes());
 	}
 }

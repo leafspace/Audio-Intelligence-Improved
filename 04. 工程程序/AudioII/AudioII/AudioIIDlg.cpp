@@ -298,7 +298,20 @@ void CAudioIIDlg::OnBnClickedButton3()
 			break;
 		}
 
-		// Todo 将处理后的数据保存到文件当中
+		// 将处理后的数据保存到文件当中
+		if (this->orginWAVFile != NULL) {
+			FILE *fp = NULL;
+			char tempBuffer[BUFFERSIZE] = { 0 }, filePathP[BUFFERSIZE] = { 0 };
+			this->cstringToCharP(this->outWAVFilePath, tempBuffer);
+			this->charPathToOut(tempBuffer, filePathP);
+			if ((fp = fopen(filePathP, "wb")) == NULL) {
+				MessageBoxA(NULL, "Create out file failured !", "Error", MB_ICONSTOP | MB_OK);
+				break;
+			}
+			this->orginWAVFile->writeWAV(fp);
+		} else {
+			MessageBoxA(NULL, "Have no wave data !", "Error", MB_ICONSTOP | MB_OK);
+		}
 
 		saveDlg.DoModal();
 	} while (0);
@@ -314,8 +327,7 @@ void CAudioIIDlg::OnBnClickedButton4()
 		GetDlgItemTextW(IDC_EDIT2, filePath);
 		this->cstringToCharP(filePath, tempBuffer);
 		this->charPathToOut(tempBuffer, filePathP);
-		fp = fopen(filePathP, "rb");
-		if (fp == NULL) {
+		if ((fp = fopen(filePathP, "rb")) == NULL) {
 			MessageBoxA(NULL, "Have no file !", "Error", MB_ICONSTOP | MB_OK);
 			break;
 		}
@@ -470,7 +482,7 @@ void CAudioIIDlg::StartDraw(int ControlID, WAV *waveFile)
 			showMax = (int)(frameMax);
 			showMin = (int)(frameMin);
 		}
-		// Todo 显示数值
+		// 显示数值
 		showMax /= pow(2, (double)(waveFile->getSampleBytes() * 8 - 1));
 		showMax = (pitureHeight / 2) * showMax;
 		showMin /= pow(2, (double)(waveFile->getSampleBytes() * 8 - 1));
