@@ -166,7 +166,7 @@ BOOL CAudioIIDlg::OnInitDialog()
 	this->isPlaying = FALSE;
 	this->fileFilter.Format(_T("WAVE File(*.wav)|*.wav|ALL File(*.*)|*.*||"));
 	this->mSlider.SetRange(1, 100);
-	this->mSlider.SetPos(70);
+	this->mSlider.SetPos(50);
 	this->mSlider.SetPageSize(20);
 	this->playSoundHandle = NULL;
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
@@ -309,7 +309,8 @@ void CAudioIIDlg::OnBnClickedButton3()
 				break;
 			}
 			this->orginWAVFile->writeWAV(fp);
-		} else {
+		}
+		else {
 			MessageBoxA(NULL, "Have no wave data !", "Error", MB_ICONSTOP | MB_OK);
 		}
 
@@ -356,12 +357,41 @@ void CAudioIIDlg::OnBnClickedButton5()
 	endpointDetection(this->orginWAVFile, &wavCParameters);
 	for (unsigned short i = 0; i < wavCParameters.voiceParagraph.size(); ++i) {
 		VoiceParagraph voiceParagraphT = wavCParameters.voiceParagraph[i];
+		int maxData = 0, minData = 0, maxAverage = 0, minAverage = 0;
+		double sumMaxData = 0, sumMinData = 0;
 		for (unsigned long j = voiceParagraphT.begin; j < voiceParagraphT.end; ++j) {
-			// Todo 此处没有效果
 			int indexValue = this->orginWAVFile->getData(j);
-			int valueFlag = indexValue > 0 ? 1 : -1;
-			int outValue = indexValue + (int)(indexValue * nowPos / 100) * valueFlag;
-			this->orginWAVFile->setData(j, outValue);
+			if (indexValue > 0) {
+				sumMaxData += indexValue;
+				if (indexValue > maxData) {
+					maxData = indexValue;
+				}
+			}
+			else if (indexValue < 0) {
+				sumMinData += indexValue;
+				if (indexValue < minData) {
+					minData = indexValue;
+				}
+			}
+		}
+
+		maxAverage = (int)fabs(sumMaxData) / voiceParagraphT.voiceLength;
+		minAverage = (int)fabs(sumMinData) / voiceParagraphT.voiceLength;
+
+		double maxFlag = pow((double)2, this->orginWAVFile->getSampleBytes() * 8 - 1);
+		double maxRatio = maxFlag * nowPos / 100 / maxAverage;
+		double minRatio = maxFlag * nowPos / 100 / minAverage;
+
+		for (unsigned long j = voiceParagraphT.begin; j < voiceParagraphT.end; ++j) {
+			int indexValue = this->orginWAVFile->getData(j);
+			if (indexValue > 0) {
+				indexValue = (int)(indexValue * maxRatio);
+				this->orginWAVFile->setData(j, indexValue);
+			}
+			else if (indexValue < 0) {
+				indexValue = (int)(indexValue * minRatio);
+				this->orginWAVFile->setData(j, indexValue);
+			}
 		}
 	}
 
